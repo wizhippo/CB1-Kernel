@@ -17,7 +17,7 @@ umask 002
 DEST="${SRC}"/output
 
 REVISION="2.2.0"
-NTP_SERVER="cn.pool.ntp.org"
+NTP_SERVER="ca.pool.ntp.org"
 titlestr="Choose an option"
 
 [[ -n $COLUMNS ]] && stty cols $COLUMNS

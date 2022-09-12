@@ -38,7 +38,8 @@ create_chroot()
 	# perhaps a temporally workaround
 	includes=${includes}",perl-openssl-defaults,libnet-ssleay-perl"
 
-	local mirror_addr="http://localhost:3142/${apt_mirror[${release}]}"
+	#local mirror_addr="http://localhost:3142/${apt_mirror[${release}]}"
+	local mirror_addr="http://${apt_mirror[${release}]}"
 
 	mkdir -p "${target_dir}"
 	cd "${target_dir}"
@@ -62,7 +63,7 @@ create_chroot()
 
 	create_sources_list "$release" "${target_dir}"
 
-    echo 'Acquire::http { Proxy "http://localhost:3142"; };' > "${target_dir}"/etc/apt/apt.conf.d/02proxy
+    #echo 'Acquire::http { Proxy "http://localhost:3142"; };' > "${target_dir}"/etc/apt/apt.conf.d/02proxy
 	cat <<-EOF > "${target_dir}"/etc/apt/apt.conf.d/71-no-recommends
 	APT::Install-Recommends "0";
 	APT::Install-Suggests "0";
@@ -324,26 +325,26 @@ create_build_script ()
 
 chroot_installpackages_local()
 {
-	local conf=$EXTER/config/aptly-temp.conf
-	rm -rf /tmp/aptly-temp/
-	mkdir -p /tmp/aptly-temp/
+	# local conf=$EXTER/config/aptly-temp.conf
+	# rm -rf /tmp/aptly-temp/
+	# mkdir -p /tmp/aptly-temp/
 
-	# -gpg-key="925644A6"
-	[[ ! -d /root/.gnupg ]] && mkdir -p /root/.gnupg
+	# # -gpg-key="925644A6"
+	# [[ ! -d /root/.gnupg ]] && mkdir -p /root/.gnupg
 
-	aptly -config="${conf}" -listen=":8189" serve >> "${DEST}"/debug/install.log 2>&1 &
-	local aptly_pid=$!
-	cp $EXTER/packages/extras-buildpkgs/buildpkg.key "${SDCARD}"/tmp/buildpkg.key
-	cat <<-'EOF' > "${SDCARD}"/etc/apt/preferences.d/90-armbian-temp.pref
-	Package: *
-	Pin: origin "localhost"
-	Pin-Priority: 550
-	EOF
-	cat <<-EOF > "${SDCARD}"/etc/apt/sources.list.d/armbian-temp.list
-	deb http://localhost:8189/ $RELEASE temp
-	EOF
+	# aptly -config="${conf}" -listen=":8189" serve >> "${DEST}"/debug/install.log 2>&1 &
+	# local aptly_pid=$!
+	# cp $EXTER/packages/extras-buildpkgs/buildpkg.key "${SDCARD}"/tmp/buildpkg.key
+	# cat <<-'EOF' > "${SDCARD}"/etc/apt/preferences.d/90-armbian-temp.pref
+	# Package: *
+	# Pin: origin "localhost"
+	# Pin-Priority: 550
+	# EOF
+	# cat <<-EOF > "${SDCARD}"/etc/apt/sources.list.d/armbian-temp.list
+	# deb http://localhost:8189/ $RELEASE temp
+	# EOF
 	chroot_installpackages
-	kill "${aptly_pid}" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+	# kill "${aptly_pid}" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 }
 
 chroot_installpackages()
@@ -362,8 +363,9 @@ chroot_installpackages()
 	fi
 	display_alert "Installing extras-buildpkgs" "$install_list"
 
-	local apt_extra="-o Acquire::http::Proxy=\"http://${APT_PROXY_ADDR:-localhost:3142}\" -o Acquire::http::Proxy::localhost=\"DIRECT\""
-	
+	#local apt_extra="-o Acquire::http::Proxy=\"http://${APT_PROXY_ADDR:-localhost:3142}\" -o Acquire::http::Proxy::localhost=\"DIRECT\""
+	local apt_extra=""
+
     cat <<-EOF > "${SDCARD}"/tmp/install.sh
 #!/bin/bash
 apt-key add /tmp/buildpkg.key
